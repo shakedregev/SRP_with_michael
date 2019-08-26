@@ -14,7 +14,7 @@ A=A+A'+speye(nmax);
 %% solution setup
 b=sparse(A*(1:nmax)'/nmax);
 %% changing part
-fac=[56 57 58 59 61 62 63];
+fac=[47 48 49 51 52 53 54];
 for kk=1:length(fac)
     x=spalloc(nmax,1,nmax);
     lfil=fac(kk);

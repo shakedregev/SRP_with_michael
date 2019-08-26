@@ -5,3 +5,5 @@
 *.ali
 # .mat
 *.mat
+# .fig
+*.fig

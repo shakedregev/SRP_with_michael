@@ -1,0 +1,10 @@
+clear;
+n=2000000;
+vec=0:20;
+offdiag=1+2.^vec;
+S=sparse(offdiag,ones(1,21),ones(1,21),n,1);
+top=sptoeplitz(S);
+nth=nthprime(n);
+p=primes(nth);
+p=p';
+top=top+spdiags(p,0,n,n);
