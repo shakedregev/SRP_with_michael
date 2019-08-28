@@ -14,28 +14,37 @@ A=A+A'+speye(nmax);
 %% solution setup
 b=sparse(A*(1:nmax)'/nmax);
 %% changing part
-fac=[47 48 49 51 52 53 54];
+fac=[91:100];
 for kk=1:length(fac)
     x=spalloc(nmax,1,nmax);
     lfil=fac(kk);
     M=entire_r_sparse_inverse(A,nmax,lfil);
     M=(M+M')/2;
-    resn=b-A*x;
-    zn=M*resn;
-    p=zn;
-    resnzn=zn'*resn;
+    r=b-A*x;
+    z=M*r;
+    p=z;
+    rho_new=z'*r;
     for niter=1:nmax
-        Ap=A*p;
-        resz=resnzn;
-        alpha=resz/(p'*Ap);
-        x=x+alpha*p;
-        resn=resn-alpha*Ap;
-        if norm(resn)<tol
+        q=A*p;
+        beta=p'*q;
+        if beta<=0
+            disp('Matrix A is not positive definite!');
             break;
         end
-        zn=M*resn;
-        resnzn=zn'*resn;
-        p=zn+(resnzn/resz)*p;
+        rho=rho_new;
+        alpha=rho/beta;
+        x=x+alpha*p;
+        r=r-alpha*q;
+        if norm(r)<tol
+            break;
+        end
+        z=M*r;
+        rho_new=z'*r;
+        if rho_new<=0
+            disp('Matrix M is not positive definite!');
+            break;
+        end
+        p=z+(rho_new/rho)*p;
     end
     disp(kk)
     disp(lfil)

@@ -32,24 +32,33 @@ toc;
 %% PCG
 tic;
 Lt=L';
-resn=b-A*x;
-y=L\resn;
-zn=Lt\y;
-p=zn;
-resnzn=zn'*resn;
+r=b-A*x;
+y=L\r;
+z=Lt\y;
+p=z;
+rho_new=z'*r;
 for niter=1:nmax
-    Ap=A*p;
-    resz=resnzn;
-    alpha=resz/(p'*Ap);
-    x=x+alpha*p;
-    resn=resn-alpha*Ap;
-    if norm(resn)<tol
+    q=A*p;
+    beta=p'*q;
+    if beta<=0
+        disp('Matrix A is not positive definite!');
         break;
     end
-    y=L\resn;
-    zn=Lt\y;
-    resnzn=zn'*resn;
-    p=zn+(resnzn)/(resz)*p;
+    rho=rho_new;
+    alpha=rho/beta;
+    x=x+alpha*p;
+    r=r-alpha*q;
+    if norm(r)<tol
+        break;
+    end
+    y=L\r;
+    z=Lt\y;
+    rho_new=z'*r;
+    if rho_new<=0
+        disp('Matrix M is not positive definite!');
+        break;
+    end
+    p=z+(rho_new/rho)*p;
 end
 toc;
 err=norm(A*x-b);

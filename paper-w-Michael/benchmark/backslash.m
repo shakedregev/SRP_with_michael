@@ -39,8 +39,10 @@ clear all;
 %load('boneS10.mat');
 % load('Fault_639.mat');
 % load('Flan_1565.mat');
- load('StocF-1465.mat');
+% load('StocF-1465.mat');
 %load('msdoor.mat');
+%load('Andrews.mat');
+load('bundle_adj.mat');
 %% problem setup
 A=Problem.A;
 p=symamd(A);
@@ -62,5 +64,9 @@ toc;
 tic;
 x=dA\b;
 toc;
+tic
+y=A\b;
+toc;
 err=norm(A*x-b);
 merr=max(abs((1:nmax)'/nmax-x));
+diff=max(abs(y-x));
