@@ -1,5 +1,4 @@
 function [M]=entire_r_sparse_inverse(A,n,lfil)
-%count=0;
 M=spalloc(n,n,lfil*n);
 for j=1:n
     m=spalloc(n,1,lfil);
@@ -10,12 +9,10 @@ for j=1:n
         del=r(i);
         m(i)=m(i)+del;
         if nnz(m)>=lfil
-            %count=count+1;
             break;
         end
         r=r-del*A(:,i);
     end
     M(:,j)=m;
 end
-%disp(count);
 end

@@ -1,10 +1,18 @@
-%% load matrix
 clear all;
-load('Trefethen_200000.mat');
-%spy(Problem.A);
+% ill-conditioned
+%load('bcsstk13.mat');
+%load('bcsstk18.mat')
+%load('pdb1HYS.mat');
+%load('hood.mat');
+% load('cvxbqp1.mat');
+% load('Fault_639.mat');
+% load('cfd2.mat');
+%load('sts4098.mat');
+%load('StocF-1465.mat');
+%load('Queen_4147.mat');
+%load('Emilia_923.mat');
 %% problem setup
-%A=Problem.A;
-A=top;
+A=Problem.A;
 tol=10^-8;
 nmax=length(A);
 %% normalize A

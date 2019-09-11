@@ -1,20 +1,12 @@
 %% load matrix
 clear all;
-load('Trefethen_2000000.mat');
+load('Trefethen_2000.mat');
 %% problem setup
-A=top;
-%A=Problem.A;
-% p=symamd(A);
-% A=A(p,p);
-tol=10^-8;
+A=Problem.A;
+%A=top;
+tol=10^-6;
+tol2=10*eps;
 nmax=length(A);
-% %% normalize A
-% %C=diag(sparse(1./sqrt(diag(A))));
-% tic
-% C=diag(sparse(sqrt(1./diag(A))));
-% A=C*A*C;
-% A=(A+A')/2;
-% toc;
 %% other normalize
 C=diag(sparse(1./sqrt(diag(A))));
 A=C*tril(A,-1)*C;
@@ -39,10 +31,13 @@ p=z;
 rho_new=z'*r;
 for niter=1:nmax
     q=A*p;
-    beta=p'*q;
-    if beta<=0
-        disp('Matrix A is not positive definite!');
-        break;
+    beta=real(p'*q);
+    if beta<tol2
+        if beta<=0
+            disp('Matrix A is not positive definite!');
+            break;
+        end
+        disp('Matrix A is ill conditioned');
     end
     rho=rho_new;
     alpha=rho/beta;
@@ -61,5 +56,6 @@ for niter=1:nmax
     p=z+(rho_new/rho)*p;
 end
 toc;
-err=norm(A*x-b);
+err=norm(A*x-b)
+disp(niter);
 merr=max(abs((1:nmax)'/nmax-x));

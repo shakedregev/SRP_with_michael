@@ -1,10 +1,9 @@
-%% load matrix
 clear all;
 % well-conditioned
 %load('crystm03.mat');
 % load('finan512.mat');
 %load('aft01.mat');
-load('1138_bus.mat');
+%load('1138_bus.mat');
 %load('Chem97ZtZ.mat');
 %load('mhd4800b.mat');
 % load('ted_B_unscaled.mat');
@@ -21,11 +20,11 @@ load('1138_bus.mat');
 % load('bundle1.mat');
 %load('qa8fm.mat');
 %load('mhd1280b.mat');
- load('gridgena.mat');
+% load('gridgena.mat');
 % load('boneS01.mat');
 % load('tmt_sym.mat');
 % load('wathen120.mat');
-% load('shallow_water2.mat');
+ load('shallow_water2.mat');
 %load('2cubes_sphere.mat');
 % load('Kuu.mat');
 % load('bodyy6.mat');
@@ -36,10 +35,9 @@ load('1138_bus.mat');
 %load('Andrews.mat');
 %% problem setup
 A=Problem.A;
-tol=10^-6;
-tol2=10*eps;
+tol=10^-8;
 nmax=length(A);
-%% other normalize
+%% normalize A
 C=diag(sparse(1./sqrt(diag(A))));
 A=C*tril(A,-1)*C;
 A=A+A'+speye(nmax);
@@ -47,47 +45,9 @@ A=A+A'+speye(nmax);
 b=sparse(A*(1:nmax)'/nmax);
 %b=sparse(A*ones(nmax,1));
 %b=sparse(ones(nmax,1));
-x=spalloc(nmax,1,nmax);
-%% ichol
+%% solution
 tic;
-opts.michol = 'off';
-L=ichol(A,opts);
-toc;
-%% PCG
-tic;
-Lt=L';
-r=b-A*x;
-y=L\r;
-z=Lt\y;
-p=z;
-rho_new=z'*r;
-for niter=1:nmax
-    q=A*p;
-    beta=real(p'*q);
-    if beta<tol2
-        if beta<=0
-            disp('Matrix A is not positive definite!');
-            break;
-        end
-        disp('Matrix A is ill conditioned');
-    end
-    rho=rho_new;
-    alpha=rho/beta;
-    x=x+alpha*p;
-    r=r-alpha*q;
-    if norm(r)<tol
-        break;
-    end
-    y=L\r;
-    z=Lt\y;
-    rho_new=z'*r;
-    if rho_new<=0
-        disp('Matrix M is not positive definite!');
-        break;
-    end
-    p=z+(rho_new/rho)*p;
-end
+x=A\b;
 toc;
 err=norm(A*x-b)
-disp(niter);
 merr=max(abs((1:nmax)'/nmax-x));

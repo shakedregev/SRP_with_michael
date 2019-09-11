@@ -1,16 +1,13 @@
 clear all;
-%load('crystm03.mat');
+% well-conditioned
+load('crystm03.mat');
 % load('finan512.mat');
-%load('bcsstk13.mat');
 %load('aft01.mat');
 %load('1138_bus.mat');
-%load('bcsstk18.mat');
 %load('Chem97ZtZ.mat');
 %load('mhd4800b.mat');
-%load('pdb1HYS.mat');
 % load('ted_B_unscaled.mat');
 % load('torsion1.mat');
-% load('Trefethen_20000.mat');
 % load('wathen100.mat');
 %load('G2_circuit.mat');
 %load('thermomech_TC.mat');
@@ -23,30 +20,21 @@ clear all;
 % load('bundle1.mat');
 %load('qa8fm.mat');
 %load('mhd1280b.mat');
-%load('hood.mat');
 % load('gridgena.mat');
 % load('boneS01.mat');
 % load('tmt_sym.mat');
-% load('Trefethen_2000.mat');
 % load('wathen120.mat');
-% load('cvxbqp1.mat');
-%load('Pres_Poisson.mat');
 % load('shallow_water2.mat');
 %load('2cubes_sphere.mat');
 % load('Kuu.mat');
 % load('bodyy6.mat');
 % load('s2rmq4m1.mat');
 %load('boneS10.mat');
-% load('Fault_639.mat');
 % load('Flan_1565.mat');
 % load('StocF-1465.mat');
-%load('msdoor.mat');
 %load('Andrews.mat');
-load('bundle_adj.mat');
 %% problem setup
 A=Problem.A;
-p=symamd(A);
-A=A(p,p);
 tol=10^-8;
 nmax=length(A);
 %% normalize A
@@ -59,14 +47,7 @@ b=sparse(A*(1:nmax)'/nmax);
 %b=sparse(ones(nmax,1));
 %% solution
 tic;
-dA=decomposition(A,'chol');
+x=A\b;
 toc;
-tic;
-x=dA\b;
-toc;
-tic
-y=A\b;
-toc;
-err=norm(A*x-b);
+err=norm(A*x-b)
 merr=max(abs((1:nmax)'/nmax-x));
-diff=max(abs(y-x));

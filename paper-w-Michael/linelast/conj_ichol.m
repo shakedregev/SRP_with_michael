@@ -6,10 +6,13 @@ load('FEM3D_2.mat');
 %load('FEM3D_5.mat');
 %% problem setup
 A=K;
-p=symamd(A);
-A=A(p,p);
-tol=10^-8;
+tol=10^-6;
+tol2=10*eps;
 nmax=length(A);
+%% other normalize
+C=diag(sparse(1./sqrt(diag(A))));
+A=C*tril(A,-1)*C;
+A=A+A'+speye(nmax);
 %% solution setup
 b=sparse(A*(1:nmax)'/nmax);
 %b=sparse(A*ones(nmax,1));
@@ -17,7 +20,7 @@ b=sparse(A*(1:nmax)'/nmax);
 x=spalloc(nmax,1,nmax);
 %% ichol
 tic;
-opts.michol = 'on';
+opts.michol = 'off';
 L=ichol(A,opts);
 toc;
 %% PCG
@@ -30,10 +33,13 @@ p=z;
 rho_new=z'*r;
 for niter=1:nmax
     q=A*p;
-    beta=p'*q;
-    if beta<=0
-        disp('Matrix A is not positive definite!');
-        break;
+    beta=real(p'*q);
+    if beta<tol2
+        if beta<=0
+            disp('Matrix A is not positive definite!');
+            break;
+        end
+        disp('Matrix A is ill conditioned');
     end
     rho=rho_new;
     alpha=rho/beta;
@@ -52,5 +58,6 @@ for niter=1:nmax
     p=z+(rho_new/rho)*p;
 end
 toc;
-err=norm(A*x-b);
+err=norm(A*x-b)
+disp(niter);
 merr=max(abs((1:nmax)'/nmax-x));
