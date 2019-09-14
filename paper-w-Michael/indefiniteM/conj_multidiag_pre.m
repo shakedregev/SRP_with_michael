@@ -1,11 +1,11 @@
 %% load matrix
 clear all;
 % ill-conditioned
-load('bcsstk13.mat');
+%load('bcsstk13.mat'); % 15 is ideal
 %load('bcsstk18.mat')
 %load('pdb1HYS.mat');
 %load('hood.mat');
-% load('cvxbqp1.mat');
+ load('cvxbqp1.mat');
 % load('Fault_639.mat');
 % load('cfd2.mat');
 %load('sts4098.mat');
@@ -15,7 +15,7 @@ load('bcsstk13.mat');
 %% problem setup
 A=Problem.A;
 tol=1e-6;
-tol2=tol^2;
+tol2=1e-2;
 nmax=length(A);
 %% normalize A
 C=diag(sparse(1./sqrt(diag(A))));
@@ -35,7 +35,7 @@ M=(M+M')/2;
 toc;
 %R=chol(M);
 %% PCG
-delta=2;
+delta=10;
 waste_iter=0;
 tic;
 flag=1;
@@ -68,24 +68,29 @@ while(flag==1)
         end
         z=M*r;
         rho_new=real(z'*r);
-        if rho_new/norm_r2<tol2
-            if rho_new<=0
-                waste_iter=waste_iter+niter;
-                M=M + (delta*abs(rho)/norm_r2)*speye(nmax);
-                x_0=x_0+dx;
-                count=count+1;
-%                 disp('M is being restarted');
-%                 disp(niter);
-                break;
+        rho_norm=rho_new/norm_r2;
+        if rho_norm<tol2
+            cur_iter=niter+waste_iter;
+            if abs(rho_norm)>tol2
+                fprintf('M is indefinite,      restarting. Iteration = %d \n',cur_iter);
+            else
+                fprintf('M is nearly singular, restarting. Iteration = %d \n',cur_iter);
             end
-            disp('Matrix M is ill conditioned');
+            gamma = delta*(tol2-rho_norm);
+            waste_iter=waste_iter+niter;
+            %M=M + (delta*abs(rho)/norm_r2)*speye(nmax);
+            M=M + gamma*speye(nmax);
+            x_0=x_0+dx;
+            count=count+1;
+            %           disp(niter);
+            break;
         end
         p=z+(rho_new/rho)*p;
     end
 end
 x_0=x_0+dx;
 toc;
-err=norm(A*x_0-b)
+err=norm(A*x_0-b);
 disp(niter+waste_iter);
 disp(waste_iter);
 disp(count);
