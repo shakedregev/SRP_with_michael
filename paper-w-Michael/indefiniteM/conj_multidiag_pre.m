@@ -1,11 +1,11 @@
 %% load matrix
 clear all;
 % ill-conditioned
-%load('bcsstk13.mat'); % 15 is ideal
+%load('bcsstk13.mat'); 
 %load('bcsstk18.mat')
 %load('pdb1HYS.mat');
 %load('hood.mat');
- load('cvxbqp1.mat');
+% load('cvxbqp1.mat');
 % load('Fault_639.mat');
 % load('cfd2.mat');
 %load('sts4098.mat');

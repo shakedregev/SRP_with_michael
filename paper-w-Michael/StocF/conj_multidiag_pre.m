@@ -1,11 +1,10 @@
 %% load matrix
 clear all;
 load('StocF-1465.mat');
-
 %% problem setup
 A=Problem.A;
 tol=10^-6;
-tol2=tol^2;
+tol2=10^-2;
 nmax=length(A);
 %% normalize A
 C=diag(sparse(1./sqrt(diag(A))));
@@ -16,8 +15,8 @@ b=sparse(A*(1:nmax)'/nmax);
 %b=sparse(A*ones(nmax,1));
 %b=sparse(ones(nmax,1));
 %% sparse inverse
-delta=2;
-fac=[61:100];
+delta=10;
+fac=[20:5:100];
 for kk=1:length(fac)
     lfil=fac(kk);
     tic
@@ -37,7 +36,7 @@ for kk=1:length(fac)
         r=b-A*x_0;
         z=M*r;
         p=z;
-        rho_new=z'*r;
+        rho_new=real(z'*r);
         for niter=1:nmax
             q=A*p;
             beta=real(p'*q);
@@ -60,15 +59,22 @@ for kk=1:length(fac)
             end
             z=M*r;
             rho_new=real(z'*r);
-            if rho_new/norm_r2<tol2
-                if rho_new<=0
-                    waste_iter=waste_iter+niter;
-                    M=M+delta*rho/norm_r2*speye(nmax);
-                    x_0=x_0+dx;
-                    count=count+1;
-                    break;
+            rho_norm=rho_new/norm_r2;
+            if rho_norm<tol2
+                cur_iter=niter+waste_iter;
+                if abs(rho_norm)>tol2
+                    fprintf('M is indefinite,      restarting. Iteration = %d \n',cur_iter);
+                else
+                    fprintf('M is nearly singular, restarting. Iteration = %d \n',cur_iter);
                 end
-                disp('Matrix M is ill conditioned');
+                gamma = delta*(tol2-rho_norm);
+                waste_iter=waste_iter+niter;
+                %M=M + (delta*abs(rho)/norm_r2)*speye(nmax);
+                M=M + gamma*speye(nmax);
+                x_0=x_0+dx;
+                count=count+1;
+                %           disp(niter);
+                break;
             end
             p=z+(rho_new/rho)*p;
         end

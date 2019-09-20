@@ -1,22 +1,18 @@
 %% load matrix
 clear all;
-% ill-conditioned
-load('bcsstk13.mat'); % 15 is ideal
-%load('bcsstk18.mat')
-%load('pdb1HYS.mat');
-%load('hood.mat');
-% load('cvxbqp1.mat');
-% load('Fault_639.mat');
-% load('cfd2.mat');
-%load('sts4098.mat');
-%load('Pres_Poisson.mat');
-%load('StocF-1465.mat');
-%load('Queen_4147.mat');
+%A=load('lin4E5.txt'); 
+%A=load('lin1E6.txt'); 
+%A=load('lin2E6.txt'); 
+%A=load('lin4E6.txt'); 
+A=load('lin8E6.txt'); 
+%A=load('lin1E7.txt'); 
 %% problem setup
-A=Problem.A;
+A=A(2:end,:);
 tol=1e-6;
-tol2=1e-3;
+tol2=1e-2;
+A=sparse(A(:,1),A(:,2),A(:,3));
 nmax=length(A);
+disp(nnz(A));
 %% normalize A
 C=diag(sparse(1./sqrt(diag(A))));
 A=C*tril(A,-1)*C;
@@ -33,6 +29,7 @@ M=entire_r_sparse_inverse(A,nmax,lfil);
 %M=alt_r_sparse_inverse(A,nmax,lfil);
 M=(M+M')/2;
 toc;
+disp(nnz(M));
 %R=chol(M);
 %% PCG
 delta=10;
